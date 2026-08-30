@@ -1,0 +1,16 @@
+services:
+  honeygain-claimer:
+    build: .
+    container_name: honeygain-claimer
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Cron expression (5-field, standard crontab syntax).
+      # Default: 07:05 every day, matching the upstream GitHub Action.
+      CRON_SCHEDULE: "5 7 * * *"
+      # Timezone the schedule above is evaluated in.
+      TZ: "UTC"
+      # Run one claim immediately at container start, then follow the
+      # cron schedule after that. Set to "false" to only run on schedule.
+      RUN_ON_START: "true"
