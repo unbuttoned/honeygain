@@ -1,4 +1,41 @@
-.env
 honeygain_checkin_log.txt
+
+· GITIGNORE
+# --- Secrets / local config ---
+.env
+.env.*
+!.env.example
+*.env.runtime
+ 
+# --- Node ---
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+ 
+# --- Logs ---
+logs/
 *.log
+ 
+# --- Docker ---
+.docker/
+*.pid
+ 
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+ 
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+ 
+# --- Misc ---
+*.tmp
+*.bak
+ 
+
