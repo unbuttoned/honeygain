@@ -14,3 +14,10 @@ services:
       # Run one claim immediately at container start, then follow the
       # cron schedule after that. Set to "false" to only run on schedule.
       RUN_ON_START: "true"
+    volumes:
+      # Persists the cached Honeygain access token (see HONEYGAIN_TOKEN_CACHE_FILE
+      # in the Dockerfile) across container restarts and recreation/updates.
+      - honeygain-data:/app/data
+
+volumes:
+  honeygain-data:

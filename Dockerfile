@@ -15,6 +15,11 @@ COPY . .
 
 RUN chmod +x /app/entrypoint.sh /app/run-claim.sh
 
+# Directory for anything that should survive container restarts/recreation
+# (currently: the cached Honeygain access token). Mount this as a volume.
+RUN mkdir -p /app/data
+VOLUME ["/app/data"]
+
 # --- Build metadata, for docker-aware startup logging ---
 # Populated by CI (see .github/workflows/docker-publish.yml). Falls back to
 # "unknown" for plain local `docker build` runs with no --build-arg passed.
@@ -31,8 +36,15 @@ LABEL org.opencontainers.image.title="honeygain-claimer" \
 
 # Default schedule: once a day at 07:05 (same time as the project's own
 # GitHub Actions workflow). Override with -e CRON_SCHEDULE="..." at runtime.
+#
+# HONEYGAIN_TOKEN_CACHE_FILE: once a login succeeds, the resulting access
+# token is written here (see src/config.js / src/honeygain.js), so future
+# cron runs reuse it instead of logging in with email/password every time.
+# Keep HONEYGAIN_EMAIL/PASSWORD set anyway — if the cached token expires,
+# that's the fallback used to get a new one. Set to "" to disable caching.
 ENV CRON_SCHEDULE="5 7 * * *" \
-    TZ="UTC"
+    TZ="UTC" \
+    HONEYGAIN_TOKEN_CACHE_FILE="/app/data/token.txt"
 
 # Everything is logged to stdout/stderr so `docker logs` shows each cron run.
 ENTRYPOINT ["/app/entrypoint.sh"]

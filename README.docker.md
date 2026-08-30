@@ -64,6 +64,24 @@ docker run -d \
   honeygain-claimer
 ```
 
+## Token persistence
+
+Upstream's `src/action.js` normally logs in with your email/password on
+*every single run*, since each cron tick is a brand-new Node process with
+no memory of the last one. This fork's `src/config.js` and
+`src/honeygain.js` add a small, minimal patch: once a login succeeds, the
+resulting token is written to `HONEYGAIN_TOKEN_CACHE_FILE` (default
+`/app/data/token.txt`), and every run tries that cached token first before
+falling back to a password login.
+
+`docker-compose.yml` mounts a named volume at `/app/data` so this file
+survives container restarts *and* recreation (rebuilds, image updates,
+`docker compose down && up`) — not just simple restarts of the same
+container. Keep `HONEYGAIN_EMAIL`/`HONEYGAIN_PASSWORD` set regardless: if
+the cached token ever expires, that's the fallback used to get a new one
+and refresh the cache. Set `HONEYGAIN_TOKEN_CACHE_FILE=""` to disable
+caching and go back to logging in every run.
+
 ## How the cron scheduling works
 
 Alpine's `crond` doesn't inherit the shell environment the container was
